@@ -1,0 +1,81 @@
+import React, {Fragment, useState, useEffect} from 'react';
+import Formulario from './components/Formulario';
+import Cita from './components/Cita';
+
+
+function App() {
+
+  //citas en localStorage
+  let citasIniciales = JSON.parse(localStorage.getItem('citas')); // leyendo si hay citas al cargar
+
+  if (!citasIniciales){ // si no hay citas al iniciar se asigna arreglo vacio
+    citasIniciales = [];
+  }
+
+  //arreglos para guardar citas
+  const [citas, guardarCitas] = useState(citasIniciales); //asignando citas iniciales
+
+  // useEffect para realizar ciertas operaciones cuando el State cambie
+  useEffect( ()=> { // parecido al documen.ready pero se ejecuta cada se modifica algo en citas
+    let citasIniciales = JSON.parse(localStorage.getItem('citas')); // leyendo si hay citas al cargar
+    
+    if(citasIniciales){
+      localStorage.setItem ('citas', JSON.stringify(citas));
+    }else {
+      localStorage.setItem( 'citas', JSON.stringify([]));
+    }
+  }, [ citas ]);
+
+  
+  //función que tome las citas actuales y AGREGAR la nueva CITA a la funcion de aqui arriba
+  const crearCita = (cita) => {
+    //se toma la cita asignada en el Formulario.js
+    guardarCitas([
+      ...citas,
+      cita
+    ]);
+  }
+
+  //Eliminar Cita por iD
+  const eliminarCita = (id) => {
+    const nuevasCitas = citas.filter( cita => cita.id !== id );
+    guardarCitas(nuevasCitas);
+  }
+
+  //Meensjae condicional
+  const titulo = citas.length === 0 ? 'No hay cita' : 'Administra tus citas';
+
+
+  return (
+
+      <Fragment>
+        <h1>Administrador de pacientes</h1>
+        <div className="container">
+          <div className="row">
+            <div className="one-half column">
+              
+                <Formulario crearCita = {crearCita} />
+
+            </div>
+            <div className="one-half column">
+              
+              <h2>{titulo}</h2>
+              
+              {
+                citas.map (cita => (
+                  <Cita 
+                    key={cita.id}
+                    cita = {cita}
+                    eliminarCita = {eliminarCita}
+                  />  
+                ))
+              }
+            </div>
+          </div>
+        </div>
+      </Fragment>
+
+  );
+}
+
+export default App;
